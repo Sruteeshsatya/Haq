@@ -106,7 +106,7 @@ Haq was built with Cline in phases, each with a plan first and a commit at the e
 | 2 Caseworker agent | `cbec19a` | `runCase` on the Cline SDK `Agent`, the 7 per-case tools, the event log, the prompt, and a CLI runner. Two real runs finished with both drafts passing. |
 | 3 API + streaming | `9b45b7e` | Seven route handlers (create, list, get, SSE events, evidence, `.ics`, appeal) and the SSE tailer. Tested end to end with `curl` against `next dev`. |
 | 4-5 UI, appeal, extras | `ff26711` | Home page, live case page, tabs, details form, copy/download/print, annexure with EXIF, read aloud, sources, first-appeal flow, and the citation check. Driven in a real browser (Edge) at 375 and 1280 px. |
-| 6 Polish | see `git log` | README, screenshots, metadata, "Case not found" page, MIT licence, cleanup, and a fix for replaying a case that has an appeal. |
+| 6 Polish | `a5721ae` | README, screenshots, metadata, "Case not found" page, MIT licence, cleanup, and a fix for replaying a case that has an appeal. |
 
 **How Cline was used**
 
