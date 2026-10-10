@@ -21,6 +21,7 @@
         "name": "Government of Assam",
         "default_grievance": "assam_cm_grievance",
         "default_rti": "rti_assam",
+        "assam_places": ["assam", "অসম", "असम", "guwahati", "dispur", "goalpara", "jorhat", "dibrugarh", "silchar", "tezpur", "nagaon", "barpeta", "tinsukia", "bongaigaon", "dhubri", "kokrajhar", "sivasagar", "golaghat", "karimganj", "lakhimpur", "majuli", "morigaon", "nalbari", "kamrup", "darrang", "cachar", "hailakandi", "dhemaji", "karbi anglong", "dima hasao"],
         "issues": {
           "electricity": { "office": "Assam Power Distribution Company Ltd (APDCL), local sub-division", "grievance": "assam_cm_grievance", "rti": "rti_assam", "rti_pio": "Public Information Officer, APDCL (sub-division office for your area)", "verified": false, "verify_note": "Confirm APDCL's own complaint channel and PIO address." },
           "ration_card": { "office": "Food, Public Distribution & Consumer Affairs Department, Assam (district office)", "grievance": "assam_cm_grievance", "rti": "rti_assam", "rti_pio": "Public Information Officer, district Food & Civil Supplies office", "verified": false, "verify_note": "Confirm department name and district PIO." },
