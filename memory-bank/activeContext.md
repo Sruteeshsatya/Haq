@@ -1,7 +1,7 @@
 # Active context
 
 ## Current phase
-Phases 4 and 5 (UI + appeal flow + extras) complete. Next: Phase 6 (polish, README, demo).
+Phases 0-6 complete (README, screenshots, licence, metadata and not-found page done). Left for the team: switch HAQ_MODEL to the demo model and run the demo twice, PPT, demo video, social post.
 
 ## Key decisions
 - Next.js + TypeScript single repo; no database; cases are folders.
@@ -52,8 +52,16 @@ Phases 4 and 5 (UI + appeal flow + extras) complete. Next: Phase 6 (polish, READ
 - `checkDraft` has a new last check `cites_only_known_sections` for all three kinds: any `Section N` other than 6(1) and 19(1) fails with a hint that names it. The agent then fixes the draft (seen in a real run).
 - After a run finishes, the step list is collapsed on small screens (button "Show steps") so drafts are not pushed down; it is always visible at `lg` and up.
 - Visual checks used `playwright-core` with the installed Edge (`.e2e/shot.mjs`, git-ignored). Mic and Read aloud code paths were not exercised with real speech in headless Edge; they fall back to a short hint when unsupported.
+## Phase 6 notes
+- README is the judges entry point; keep its numbers (192 tests, 8 of 13 offices unverified) in sync when they change.
+- `docs/screenshots/` come from real runs (Edge + playwright-core, scripts in the git-ignored `.e2e/`). The Next.js dev badge is hidden in them by an injected style. The "Fixed" shot is from a real appeal where `cites_only_known_sections` rejected Section 7(1).
+- `app/case/[id]/page.tsx` now checks `isValidCaseId` + `caseExists` inside `<Suspense>` and calls `notFound()`; `app/not-found.tsx` renders `components/CaseNotFound.tsx` (also used by `CaseView` when the API says missing). `notFound()` after streaming has started keeps status 200 (Next docs); the page is still noindex.
+- Metadata: root `title.template` `%s · Haq`, description, Open Graph; the case page is `robots: noindex`.
+- SSE fix: `tailEvents` ends only when a `done`/`error` is the last complete line available, so a file with two runs (case + appeal) replays fully. Live runs are unchanged (a new `start` after `done` is only appended later, and the client reconnects with `?after=`).
+- Secret scan of the tree and git history (patterns: `sk-...`, `Bearer ...`, `CLINE_API_KEY=<value>`): nothing found. `.env.local` holds a real key but is git-ignored; `.env.example` has a blank key.
+- Data note wording changed from "before the demo" to "before filing" in `data/*.json` (no logic change).
 ## Next steps
-- Phase 6: README, demo script, confirm `verified: false` offices, rotate the old API key, consider auth or rate limiting before any public deploy.
+- Run the demo scenario twice with `HAQ_MODEL=anthropic/claude-sonnet-4-6` (never run on this code); confirm `verified: false` offices; rotate the old API key; add auth and rate limiting before any public deploy; PPT, demo video, social post.
 
 ## Open questions
 - Confirm `verified: false` offices in data/authorities.json before the demo.

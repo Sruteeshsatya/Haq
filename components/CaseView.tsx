@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { fetchCase } from "./caseApi";
+import CaseNotFound from "./CaseNotFound";
 import DraftTab from "./DraftTab";
 import LivePanel from "./LivePanel";
 import RouteBadge from "./RouteBadge";
@@ -59,17 +60,7 @@ export default function CaseView({ caseId }: { caseId: string }) {
     setTab("first_appeal");
   }
 
-  if (missing) {
-    return (
-      <main className="mx-auto w-full max-w-2xl px-4 py-10">
-        <h1 className="text-2xl font-bold">We could not find this case.</h1>
-        <p className="mt-2 text-muted">The link may be wrong, or the case was removed.</p>
-        <Link href="/" className="mt-4 inline-block min-h-12 rounded-xl bg-accent px-5 py-3 text-lg font-bold text-white">
-          Start a new case
-        </Link>
-      </main>
-    );
-  }
+  if (missing) return <CaseNotFound />;
 
   const ready = Boolean(data?.drafts.complaint || data?.drafts.rti);
   return (

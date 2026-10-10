@@ -1,5 +1,5 @@
 {
-  "_note": "Nested routing data: city -> state -> central. 'verified: true' = checked against an official source on 2026-10-10. 'verified: false' = plausible routing that the team must confirm before the demo; the agent must show a 'verify this office' warning for these. Pick the MOST LOCAL level that owns the issue.",
+  "_note": "Nested routing data: city -> state -> central. 'verified: true' = checked against an official source on 2026-10-10. 'verified: false' = plausible routing that must be confirmed before filing; the agent must show a 'verify this office' warning for these. Pick the MOST LOCAL level that owns the issue.",
   "levels": {
     "city": {
       "guwahati": {
@@ -37,7 +37,7 @@
       "default_rti": "rti_central",
       "issues": {
         "post_office": { "office": "Department of Posts (via CPGRAMS)", "grievance": "cpgrams", "rti": "rti_central", "rti_pio": "CPIO, Department of Posts (choose on rtionline.gov.in)", "verified": false, "verify_note": "Department of Posts also has its own complaint system; CPGRAMS is accepted." },
-        "railways": { "office": "Ministry of Railways (via CPGRAMS)", "grievance": "cpgrams", "rti": "rti_central", "rti_pio": "CPIO, the relevant Railway zone (choose on rtionline.gov.in)", "verified": false, "verify_note": "Railways also runs its own complaint channel; confirm before demo." },
+        "railways": { "office": "Ministry of Railways (via CPGRAMS)", "grievance": "cpgrams", "rti": "rti_central", "rti_pio": "CPIO, the relevant Railway zone (choose on rtionline.gov.in)", "verified": false, "verify_note": "Railways also runs its own complaint channel; confirm before filing." },
         "passport": { "office": "Ministry of External Affairs - Passport Seva (via CPGRAMS)", "grievance": "cpgrams", "rti": "rti_central", "rti_pio": "CPIO, Regional Passport Office (choose on rtionline.gov.in)", "verified": false },
         "other_central_service": { "office": "The central ministry or department that provides the service (via CPGRAMS)", "grievance": "cpgrams", "rti": "rti_central", "rti_pio": "CPIO of that ministry/department (choose on rtionline.gov.in)", "verified": true }
       },

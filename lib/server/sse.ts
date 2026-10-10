@@ -85,7 +85,10 @@ export async function* tailEvents(caseId: string, options: TailOptions = {}): As
         } catch {
           type = undefined;
         }
-        if (type === "done" || type === "error") {
+        // Stop at the END of a run only when no more complete lines follow. A case with a first appeal
+        // has two runs in one file, and a page opened later must replay both.
+        const lastLineSoFar = newline === -1;
+        if ((type === "done" || type === "error") && lastLineSoFar) {
           yield "event: end\ndata: {}\n\n";
           return;
         }

@@ -9,9 +9,14 @@ const notoSans = Noto_Sans({ variable: "--font-noto-sans", subsets: ["latin"], d
 const notoBengali = Noto_Sans_Bengali({ variable: "--font-noto-bengali", subsets: ["bengali"], display: "swap" });
 const notoDevanagari = Noto_Sans_Devanagari({ variable: "--font-noto-devanagari", subsets: ["devanagari"], display: "swap" });
 
+const description =
+  "Describe a civic problem in English, Hindi or Assamese. Haq finds the right office, drafts your complaint and RTI application, and tracks your deadlines.";
+
 export const metadata: Metadata = {
-  title: "Haq · হক · हक़ — Your right, in your language",
-  description: "Describe a civic problem in English, Hindi or Assamese. Haq finds the right office, drafts your complaint and RTI, and tracks your deadlines.",
+  title: { default: "Haq · হক · हक़ — Your right, in your language", template: "%s · Haq" },
+  description,
+  applicationName: "Haq",
+  openGraph: { title: "Haq · হক · हक़", description, type: "website", locale: "en_IN" },
 };
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#0f5c63" };

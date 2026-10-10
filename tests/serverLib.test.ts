@@ -180,6 +180,22 @@ describe("SSE tail", () => {
     expect(dataOf(frames).map((e) => e.type)).toEqual(["start", "error"]);
     expect(frames[frames.length - 1]).toContain("event: end");
   });
+  it("replays a whole file with two runs (case + first appeal) and ends after the last done", async () => {
+    seedCase(root, "c1", {
+      "events.jsonl": jsonl([
+        { type: "start", mode: "new" },
+        { type: "done", summary: "first" },
+        { type: "start", mode: "first_appeal" },
+        { type: "text", text: "appeal" },
+        { type: "done", summary: "second" },
+      ]),
+    });
+    const frames = await collect(tailEvents("c1", { root, pollMs: 10 }));
+    expect(dataOf(frames).map((e) => e.type)).toEqual(["start", "done", "start", "text", "done"]);
+    expect(frames[frames.length - 1]).toBe("event: end\ndata: {}\n\n");
+  });
+
+
 
   it("waits for a file that does not exist yet, then streams lines appended later", async () => {
     fs.mkdirSync(path.join(root, "c1"), { recursive: true });
