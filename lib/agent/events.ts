@@ -3,8 +3,12 @@ import path from "node:path";
 import { defaultCasesRoot } from "../tools/caseFiles";
 import type { DraftCheck, DraftKind } from "../tools/checkDraft";
 
+export type RunMode = "new" | "first_appeal";
+
 /** Simplified events the UI consumes. They never depend on Cline SDK event names. */
 export type CaseEvent =
+  /** First event of every run. A new `start` marks where the latest run begins in events.jsonl. */
+  | { type: "start"; ts: number; mode: RunMode }
   | { type: "text"; ts: number; text: string }
   | { type: "tool_call"; ts: number; toolName: string; toolCallId: string; input: unknown }
   | {

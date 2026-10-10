@@ -3,9 +3,15 @@ import path from "node:path";
 
 const CASE_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
 
-/** Default folder that holds all cases: <cwd>/cases. Tests pass their own root. */
+/** Default folder that holds all cases: <cwd>/cases, or HAQ_CASES_DIR when set (used by tests). */
 export function defaultCasesRoot(): string {
-  return path.join(process.cwd(), "cases");
+  const override = process.env.HAQ_CASES_DIR?.trim();
+  return override ? path.resolve(override) : path.join(process.cwd(), "cases");
+}
+
+/** True when the value is a safe case id: letters, digits, "_" and "-" only. */
+export function isValidCaseId(caseId: unknown): caseId is string {
+  return typeof caseId === "string" && CASE_ID_PATTERN.test(caseId);
 }
 
 /**

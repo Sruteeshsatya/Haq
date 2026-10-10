@@ -12,7 +12,7 @@ import { checkDraft, type CheckDraftResult, type DraftKind } from "../tools/chec
 import { ISSUE_TYPES, LAW_KEYS } from "../tools/data";
 import { findAuthority } from "../tools/findAuthority";
 import { lookupLaw } from "../tools/lookupLaw";
-import type { EmitEvent } from "./events";
+import type { EmitEvent, RunMode } from "./events";
 
 /** A caseworker tool. Input is `unknown` because every tool re-validates it with zod. */
 export type CaseTool = AgentTool<unknown, unknown>;
@@ -32,6 +32,8 @@ export interface CaseToolsOptions {
   emit: EmitEvent;
   /** Folder that holds all cases. Defaults to <cwd>/cases; tests pass a temp folder. */
   root?: string;
+  /** "first_appeal": finish_case needs only drafts/first_appeal.md. Default "new". */
+  mode?: RunMode;
   /** Called once when finish_case succeeds. */
   onFinish?: (summary: string) => void;
 }
@@ -252,12 +254,16 @@ export function createCaseTools(caseId: string, options: CaseToolsOptions): Case
   const finishTool = createTool({
     name: "finish_case",
     description:
-      "Call once at the very end. Refuses to finish unless drafts/complaint.md and drafts/rti.md exist and pass all checks.",
+      "Call once at the very end. Refuses to finish unless the required drafts exist and pass all checks: drafts/complaint.md and drafts/rti.md, or only drafts/first_appeal.md in first appeal mode.",
     inputSchema: finishSchema,
     lifecycle: { completesRun: true },
     execute: guarded(finishSchema, async ({ summary }) => {
-      const drafts = [...REQUIRED_DRAFTS];
-      if ((await readDraft(FIRST_APPEAL_DRAFT.path)) !== undefined) drafts.push(FIRST_APPEAL_DRAFT);
+      // First-appeal mode needs only the appeal; the complaint and RTI were finished in the first run.
+      const drafts: Array<{ kind: DraftKind; path: string }> =
+        options.mode === "first_appeal" ? [FIRST_APPEAL_DRAFT] : [...REQUIRED_DRAFTS];
+      if (options.mode !== "first_appeal" && (await readDraft(FIRST_APPEAL_DRAFT.path)) !== undefined) {
+        drafts.push(FIRST_APPEAL_DRAFT);
+      }
       const evidence = await hasEvidence();
       const problems: string[] = [];
       for (const draft of drafts) {

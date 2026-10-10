@@ -137,8 +137,9 @@ describe("runCase with a mocked model", () => {
     const { model } = scripted(HAPPY_PATH);
     await runCase("c1", collect, { root, model });
     expect(readLog()).toEqual(events);
-    expect(readLog()[0]).toMatchObject({ type: "text", text: "I will start." });
-    expect(readLog()[1]).toMatchObject({ type: "tool_call", toolName: "read_case_file" });
+    expect(readLog()[0]).toMatchObject({ type: "start", mode: "new" });
+    expect(readLog()[1]).toMatchObject({ type: "text", text: "I will start." });
+    expect(readLog()[2]).toMatchObject({ type: "tool_call", toolName: "read_case_file" });
   });
 
   it("refuses finish_case while drafts are missing, marks it an error, and does not end the run", async () => {
@@ -201,7 +202,7 @@ describe("runCase with a mocked model", () => {
       const result = await runCase("c1", collect, { root });
       expect(result.status).toBe("error");
       expect(result.error).toMatch(/CLINE_API_KEY/);
-      expect(events).toHaveLength(1);
+      expect(types()).toEqual(["start", "error"]);
     } finally {
       if (saved !== undefined) process.env.CLINE_API_KEY = saved;
     }

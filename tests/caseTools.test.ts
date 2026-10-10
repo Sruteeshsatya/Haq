@@ -272,6 +272,48 @@ describe("finish_case", () => {
     expect(result.output.problems[0]).toContain("drafts/first_appeal.md fails");
   });
 
+  describe("first appeal mode", () => {
+    const GOOD_APPEAL = `Subject: First appeal under Section 19(1) of the RTI Act, 2005
+
+To,
+The First Appellate Authority,
+Guwahati Municipal Corporation
+
+My RTI application dated 05 September 2026 received no reply within 30 days. I request you to direct the PIO to provide the information.
+
+[Your name]
+[Your address]`;
+
+    it("needs only first_appeal.md: the complaint and RTI are not required", async () => {
+      const appealTools = createCaseTools("c1", { emit: () => {}, root, mode: "first_appeal" });
+      const result = await exec(appealTools, "finish_case", { summary: "x" });
+      expect(result.isError).toBe(true);
+      expect(result.output.problems).toEqual(["drafts/first_appeal.md is missing."]);
+
+      put("drafts/first_appeal.md", GOOD_APPEAL);
+      const ok = await exec(appealTools, "finish_case", { summary: "Appeal ready" });
+      expect(ok).toEqual({ finished: true, summary: "Appeal ready" });
+    });
+
+    it("refuses a failing appeal, and ignores a failing complaint or RTI", async () => {
+      put("drafts/complaint.md", "broken");
+      put("drafts/rti.md", "broken");
+      put("drafts/first_appeal.md", "Please help.");
+      const appealTools = createCaseTools("c1", { emit: () => {}, root, mode: "first_appeal" });
+      const result = await exec(appealTools, "finish_case", { summary: "x" });
+      expect(result.isError).toBe(true);
+      expect(result.output.problems).toHaveLength(1);
+      expect(result.output.problems[0]).toContain("drafts/first_appeal.md fails");
+    });
+
+    it("the default mode still needs the complaint and the RTI", async () => {
+      put("drafts/first_appeal.md", GOOD_APPEAL);
+      const result = await exec(tools, "finish_case", { summary: "x" });
+      expect(result.isError).toBe(true);
+      expect(result.output.problems).toEqual(["drafts/complaint.md is missing.", "drafts/rti.md is missing."]);
+    });
+  });
+
   it("does not call onFinish when refusing", async () => {
     let called = false;
     const withHook = createCaseTools("c1", { emit: () => {}, root, onFinish: () => (called = true) });

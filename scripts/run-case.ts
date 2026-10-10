@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { runCase } from "../lib/agent/runCase";
+import { todayIST } from "../lib/server/http";
 import type { CaseEvent } from "../lib/agent/events";
 import { defaultCasesRoot, listCaseFiles, readCaseFile, writeCaseFile } from "../lib/tools/caseFiles";
 
@@ -10,11 +11,13 @@ const TEXT =
   "(English: Our lane in Guwahati has had a big pothole for 3 months. Two people have fallen and been hurt. Please get the road repaired.)";
 
 function today(): string {
-  return new Date().toISOString().slice(0, 10);
+  return todayIST();
 }
 
 function line(event: CaseEvent): string {
   switch (event.type) {
+    case "start":
+      return `[start] mode=${event.mode}`;
     case "text":
       return `[text] ${event.text.replace(/\s+/g, " ").slice(0, 300)}`;
     case "tool_call":

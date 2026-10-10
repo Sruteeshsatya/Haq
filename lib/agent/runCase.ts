@@ -3,7 +3,7 @@ import path from "node:path";
 import { Agent } from "@cline/sdk";
 import { defaultCasesRoot, safeCasePath } from "../tools/caseFiles";
 import { createCaseTools, unwrapToolResult } from "./caseTools";
-import { appendEventLine, type CaseEvent, type CaseEventInput } from "./events";
+import { appendEventLine, type CaseEvent, type CaseEventInput, type RunMode } from "./events";
 import { getModelConfig } from "./model";
 
 type AgentConfig = ConstructorParameters<typeof Agent>[0];
@@ -18,6 +18,8 @@ export interface RunCaseOptions {
   root?: string;
   /** Path of the system prompt file. Defaults to <cwd>/prompts/caseworker.md. */
   promptPath?: string;
+  /** "first_appeal": only drafts/first_appeal.md must pass before finish_case. Default "new". */
+  mode?: RunMode;
   /** A pre-built model, used by tests so the real API is never called. */
   model?: MockModel;
   maxIterations?: number;
@@ -84,6 +86,10 @@ export async function runCase(
     return { status: "error", error: message };
   };
 
+  // Every run starts with this event, so a client can tell where the latest run begins.
+  const mode: RunMode = options.mode ?? "new";
+  emit({ type: "start", mode });
+
   let systemPrompt: string;
   try {
     const promptPath = options.promptPath ?? path.join(process.cwd(), "prompts", "caseworker.md");
@@ -105,6 +111,7 @@ export async function runCase(
   const tools = createCaseTools(caseId, {
     emit,
     root,
+    mode,
     onFinish: (summary) => {
       finishedSummary = summary;
     },
@@ -167,9 +174,11 @@ export async function runCase(
   }, options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
 
   try {
-    const result = await agent.run(
-      `Work on case "${caseId}". Start by reading facts.md and follow your steps.`,
-    );
+    const task =
+      mode === "first_appeal"
+        ? `Work on case "${caseId}" in first appeal mode. Start by reading facts.md and follow the first appeal steps.`
+        : `Work on case "${caseId}". Start by reading facts.md and follow your steps.`;
+    const result = await agent.run(task);
     if (timedOut) return { status: "error", error: TIMEOUT_MESSAGE };
     if (finishedSummary !== undefined) {
       emit({ type: "done", summary: finishedSummary });

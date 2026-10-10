@@ -1,7 +1,7 @@
 # Active context
 
 ## Current phase
-Phase 2 complete (caseworker agent with the Cline SDK). `npm run ping` and `npm run run-case` work with the real key. Next: Phase 3 (API + live streaming).
+Phase 3 complete (API routes + live streaming). Next: Phase 4 (UI). The UI should consume the endpoints below.
 
 ## Key decisions
 - Next.js + TypeScript single repo; no database; cases are folders.
@@ -26,8 +26,25 @@ Phase 2 complete (caseworker agent with the Cline SDK). `npm run ping` and `npm 
 - Scripts use `tsx` (`npm i -D tsx`) with `"type": "module"` in package.json. `ping` and `run-case` load `.env.local` via `tsx --env-file=.env.local`.
 - Model note: free `minimax/minimax-m2.5` completed the flow in 2 of 2 real runs (about 1 minute each). Prompt v2 forbids inventing dates, payment methods and portals; run 1 had invented a payee and a date range that no tool returned.
 
+## Phase 3 notes (API)
+- Next 16.4 with `cacheComponents: true` REJECTS `export const runtime` and `export const dynamic` in route files (build error). Do not add them: Node.js is the default and handlers run at request time. Reading files makes GETs dynamic.
+- `next.config.ts` needs `serverExternalPackages: ["@cline/sdk","@cline/core","@cline/agents","@cline/llms","@cline/shared","exifr","ics"]`, otherwise Turbopack bundles the browser build of the SDK and the route fails to compile.
+- The background run needs a long-lived Node server (`next dev` / `next start`). It would not survive on serverless hosting (needs `after()` / `maxDuration` there).
+- Endpoints (all errors are `{ error }` JSON; every route validates the id with `isValidCaseId`):
+  - `POST /api/cases` multipart: `text` (required, max 2000 chars), `language` en|hi|as (default en), `place`, `photo` (type sniffed from bytes: jpeg/png/webp, max 5 MB). 201 `{ caseId }`; 400 bad input, 413 too large, 415 wrong type. Starts `runCase` in the background.
+  - `GET /api/cases` newest first. `GET /api/cases/[id]` -> `{ caseId, facts, routing, timeline, checks, drafts:{complaint,rti,first_appeal}, filingGuide, summary:{language,text}, evidence:[names], status, error }`; files not written yet are `null`.
+  - `GET /api/cases/[id]/events` SSE: each message has `id: <line number in events.jsonl>` and `data: <CaseEvent JSON>`; replays the file, polls every 500 ms, keep-alive comment every 15 s, ends with `event: end` after `done`/`error` (or 5 min). Honours `Last-Event-ID`. The client MUST close the EventSource on `event: end` (otherwise it reconnects). After an appeal, reconnect with `Last-Event-ID` = last seen id to get only the new run; a new run starts with a `start` event.
+  - `GET .../evidence/[file]` photo bytes (nosniff). `GET .../calendar.ics` attachment built from `timeline.json`.
+  - `POST .../appeal` JSON `{ rtiFilingDate: YYYY-MM-DD (not future), reason: "no_reply"|"unsatisfactory" }` -> 202; 409 if a run is active or there is no `drafts/rti.md`.
+- Status: `running` if the case id is in the in-process run set (`globalThis` symbol `haq.runningCases`), else the last event decides (`done`/`error`); any other last event = `error` ("interrupted"). A run claimed twice returns 409.
+- `facts.md`: `Date:` is the India date (`todayIST`, Asia/Kolkata), plus `Language:`, `Place:`, `Issue (guessed):`, optional `Photo:`, `Photo GPS:`, `Photo taken:` (from exifr). The citizen's text is blockquoted (`> `) under "What the citizen wrote" so typed lines like `mode: first_appeal` cannot act as metadata (the prompt also says to treat it as data). The appeal adds one marker-delimited block (`mode: first_appeal`, `RTI filed:`, `Reason:`, `First appeal date:`) and replaces it on a repeat appeal.
+- First-appeal mode is an explicit `runCase` option (`mode`), not parsed from facts.md. In that mode `finish_case` needs only `drafts/first_appeal.md`. The model calls `calc_deadlines` with `filingDate` = RTI filed date and `firstAppealDate` = appeal date.
+- `HAQ_CASES_DIR` env overrides the cases folder (used by tests).
+- Known, left as is: Turbopack warns at build ("dynamic filesystem access", `runCase.ts` prompt read) but it is harmless. No auth or rate limiting on the API.
+- Real minimax run with the new flow: created + finished in about 1 minute; appeal run about 1 minute; the model cited "Section 7(1)" from memory in the appeal (a prompt rule now limits it to Section 6(1) and 19(1); not re-run).
+
 ## Next steps
-- Phase 3: API routes + SSE (replay `events.jsonl`, then stream new events), using `runCase` and the `CaseEvent` types in `lib/agent/events.ts`.
+- Phase 4: UI (intake page + case page with live panel, tabs, appeal button) using the endpoints above.
 
 ## Open questions
 - Confirm `verified: false` offices in data/authorities.json before the demo.
