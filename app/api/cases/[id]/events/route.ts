@@ -6,7 +6,9 @@ export async function GET(request: Request, ctx: { params: Promise<{ id: string 
     const id = parseCaseId((await ctx.params).id);
     if (typeof id !== "string") return id;
     if (!(await caseExists(id))) return jsonError(404, "Case not found.");
-    return sseResponse(id, request);
+    // Browsers cannot set Last-Event-ID on a new EventSource, so `?after=N` resumes after line N too.
+    const after = Number(new URL(request.url).searchParams.get("after"));
+    return sseResponse(id, request, { afterLine: Number.isInteger(after) && after > 0 ? after : undefined });
   } catch (error) {
     return serverError(error);
   }

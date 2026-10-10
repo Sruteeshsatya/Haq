@@ -270,6 +270,42 @@ describe("POST /api/cases/[id]/appeal", () => {
   });
 });
 
+describe("GET /api/cases/[id]/events ?after=N", () => {
+  it("resumes after line N (browsers cannot set Last-Event-ID on a new EventSource)", async () => {
+    seedCase(root, "c1", {
+      "facts.md": "x",
+      "events.jsonl": [{ type: "start" }, { type: "done" }, { type: "start", mode: "first_appeal" }, { type: "done" }]
+        .map((e) => JSON.stringify(e))
+        .join("\n") + "\n",
+    });
+    const response = await getEvents(new Request("http://x/api/cases/c1/events?after=2"), idParams("c1"));
+    expect(response.headers.get("content-type")).toContain("text/event-stream");
+    const text = await response.text();
+    expect(text).not.toContain("id: 1\n");
+    expect(text).not.toContain("id: 2\n");
+    expect(text).toContain("id: 3\n");
+    expect(text).toContain('"mode":"first_appeal"');
+    expect(text).toContain("event: end");
+  });
+
+  it("ignores a bad ?after value", async () => {
+    seedCase(root, "c1", { "facts.md": "x", "events.jsonl": '{"type":"start"}\n{"type":"done"}\n' });
+    const text = await (await getEvents(new Request("http://x/api/cases/c1/events?after=abc"), idParams("c1"))).text();
+    expect(text).toContain("id: 1\n");
+  });
+
+  it("GET /api/cases/[id] includes the route view and the sources", async () => {
+    seedCase(root, "c1", {
+      "facts.md": "Language: en",
+      "routing.json": JSON.stringify({ result: { covered: true, level: "city", office: "GMC PGO", verified: false, verifyNote: "check", grievanceKey: "gmc_grievance", rtiKey: "rti_assam", rtiPio: "PIO", sources: ["https://example.gov.in/a"] } }),
+    });
+    const body = (await (await getCase(new Request("http://x"), idParams("c1"))).json()) as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+    expect(body.route).toMatchObject({ level: "city", office: "GMC PGO", verified: false, verifyNote: "check" });
+    expect(body.sources.map((s: { url: string }) => s.url)).toContain("https://example.gov.in/a");
+    expect(body.sources.map((s: { url: string }) => s.url)).toContain("https://rtionline.assam.gov.in");
+  });
+});
+
 describe("GET /api/cases/[id]/calendar.ics", () => {
   it("downloads the timeline as an .ics attachment", async () => {
     const events = [{ date: "2026-11-09", label: "RTI reply due", kind: "rti", explanation: "x" }];

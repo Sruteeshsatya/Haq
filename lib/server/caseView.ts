@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import { defaultCasesRoot, listCaseFiles, readCaseFile } from "../tools/caseFiles";
 import { runningCases } from "./http";
+import { buildRouteView, buildSources } from "./routeView";
 
 export type CaseStatus = "running" | "done" | "error";
 
@@ -65,10 +66,14 @@ export async function getCaseView(caseId: string, root: string = defaultCasesRoo
   const files = await listCaseFiles(caseId, root);
   const evidence = files.filter((file) => file.startsWith("evidence/")).map((file) => file.slice("evidence/".length));
 
+  const routing = await readJson(caseId, "routing.json", root);
+
   return {
     caseId,
     facts,
-    routing: await readJson(caseId, "routing.json", root),
+    routing,
+    route: buildRouteView(routing),
+    sources: buildSources(routing),
     timeline: await readJson(caseId, "timeline.json", root),
     checks: await readJson(caseId, "checks.json", root),
     drafts: {

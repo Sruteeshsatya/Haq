@@ -121,7 +121,7 @@ export function sseResponse(caseId: string, request: Request, options: TailOptio
   const iterator = tailEvents(caseId, {
     ...options,
     signal: controller.signal,
-    afterLine: parseLastEventId(request.headers.get("last-event-id")),
+    afterLine: Math.max(options.afterLine ?? 0, parseLastEventId(request.headers.get("last-event-id"))),
   });
   const encoder = new TextEncoder();
   const stream = new ReadableStream<Uint8Array>({

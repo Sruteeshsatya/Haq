@@ -211,6 +211,37 @@ function checkFirstAppeal(text: string): CheckDraftResult {
   ]);
 }
 
+/**
+ * Legal provisions a draft may cite. data/laws.json has no section numbers, so the only ones allowed
+ * are the two fixed by the caseworker instructions: 6(1) for the RTI application, 19(1) for the first appeal.
+ */
+const ALLOWED_SECTIONS = new Set(["6(1)", "19(1)"]);
+
+/** Section references in the text that are not allowed, e.g. ["7(1)", "8"]. Exported for tests. */
+export function unknownSections(text: string): string[] {
+  const found = new Set<string>();
+  const pattern = /\b(?:sections?|sec\.|u\/s)\s*(\d+[A-Za-z]?)(?:\s*\(\s*(\w+)\s*\))?/gi;
+  let match: RegExpExecArray | null;
+  while ((match = pattern.exec(text)) !== null) {
+    const ref = match[2] ? `${match[1]}(${match[2]})` : match[1];
+    if (!ALLOWED_SECTIONS.has(ref.toLowerCase())) found.add(ref);
+  }
+  return [...found];
+}
+
+function withCitationCheck(result: CheckDraftResult, text: string): CheckDraftResult {
+  const unknown = unknownSections(text);
+  return finish([
+    ...result.checks,
+    {
+      id: "cites_only_known_sections",
+      label: "Cites only Section 6(1) and Section 19(1)",
+      passed: unknown.length === 0,
+      hint: `Remove the reference to Section ${unknown.join(", Section ")}. Only Section 6(1) (RTI application) and Section 19(1) (first appeal) may be cited; say "the RTI Act, 2005" or "the time allowed by law" instead.`,
+    },
+  ]);
+}
+
 /** Deterministic checks for a draft. Never calls an LLM. */
 export function checkDraft(
   kind: DraftKind,
@@ -219,11 +250,11 @@ export function checkDraft(
 ): CheckDraftResult {
   switch (kind) {
     case "rti":
-      return checkRti(text);
+      return withCitationCheck(checkRti(text), text);
     case "complaint":
-      return checkComplaint(text, options.hasEvidence ?? false);
+      return withCitationCheck(checkComplaint(text, options.hasEvidence ?? false), text);
     case "first_appeal":
-      return checkFirstAppeal(text);
+      return withCitationCheck(checkFirstAppeal(text), text);
     default:
       throw new Error(`Unknown draft kind: ${String(kind)}`);
   }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkDraft, type DraftKind } from "../lib/tools/checkDraft";
+import { checkDraft, unknownSections, type DraftKind } from "../lib/tools/checkDraft";
 
 const GOOD_RTI = `To,
 The Public Information Officer,
@@ -250,5 +250,29 @@ describe("checkDraft: first_appeal", () => {
 describe("checkDraft: misc", () => {
   it("throws for an unknown kind", () => {
     expect(() => checkDraft("nope" as DraftKind, "text")).toThrow(/Unknown draft kind/);
+  });
+});
+
+describe("checkDraft: only known legal sections", () => {
+  it("finds section numbers other than 6(1) and 19(1)", () => {
+    expect(unknownSections("under Section 6(1) and Section 19(1) of the RTI Act")).toEqual([]);
+    expect(unknownSections("as per Section 7(1) of the RTI Act")).toEqual(["7(1)"]);
+    expect(unknownSections("section 8 and Sec. 20(1) and sections 7(1), u/s 18")).toEqual(["8", "20(1)", "7(1)", "18"]);
+    expect(unknownSections("Section 6 ( 1 ) is fine, section 19(1) too")).toEqual([]);
+    expect(unknownSections("the intersection 7 of the road, 7 sections of road")).toEqual([]);
+  });
+
+  it("fails any draft kind that cites another section, with a hint naming it", () => {
+    const appeal = GOOD_APPEAL.replace("No reply was received", "As per Section 7(1) of the RTI Act, no reply was received");
+    expect(failedIds("first_appeal", appeal)).toEqual(["cites_only_known_sections"]);
+    const hint = checkDraft("first_appeal", appeal).checks.find((c) => c.id === "cites_only_known_sections")?.hint;
+    expect(hint).toContain("Section 7(1)");
+    expect(failedIds("rti", GOOD_RTI + "\nSee Section 8(1)(j).")).toEqual(["cites_only_known_sections"]);
+    expect(failedIds("complaint", GOOD_COMPLAINT + "\nUnder Section 133 of the Code.")).toEqual(["cites_only_known_sections"]);
+  });
+
+  it("passes the normal drafts", () => {
+    expect(failedIds("rti", GOOD_RTI)).toEqual([]);
+    expect(failedIds("first_appeal", GOOD_APPEAL)).toEqual([]);
   });
 });

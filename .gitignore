@@ -46,3 +46,8 @@ next-env.d.ts
 cases/*
 !cases/.gitkeep
 !cases/index.json
+
+# local scratch: browser screenshots and command logs
+/.e2e/
+/*-out.txt
+/dev-pid.txt

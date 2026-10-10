@@ -1,26 +1,86 @@
 @import "tailwindcss";
 
+/* One accent colour (deep teal) on a calm warm-white page. Amber is used only for the "please confirm" warning. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f7f5f0;
+  --foreground: #1f2937;
+  --surface: #ffffff;
+  --muted: #5b6472;
+  --line: #e3ded2;
+  --accent: #0f5c63;
+  --accent-strong: #0b4a50;
+  --accent-soft: #e3f1f0;
+  --ok: #1a7f4b;
+  --bad: #b3261e;
+  --warn-bg: #fff4d6;
+  --warn-line: #e0b84a;
+  --warn-text: #6b4e00;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-surface: var(--surface);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --color-ok: var(--ok);
+  --color-bad: var(--bad);
+  --font-sans: var(--font-noto-sans), var(--font-noto-bengali), var(--font-noto-devanagari), system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Rendered markdown (drafts, filing guide, summary) */
+.prose-haq h1, .prose-haq h2, .prose-haq h3 { font-weight: 700; line-height: 1.3; margin: 1.25em 0 0.5em; }
+.prose-haq h1 { font-size: 1.35rem; }
+.prose-haq h2 { font-size: 1.2rem; }
+.prose-haq h3 { font-size: 1.1rem; }
+.prose-haq p { margin: 0.75em 0; }
+.prose-haq ul, .prose-haq ol { margin: 0.75em 0; padding-left: 1.4em; }
+.prose-haq ul { list-style: disc; }
+.prose-haq ol { list-style: decimal; }
+.prose-haq li { margin: 0.35em 0; }
+.prose-haq a { color: var(--accent); text-decoration: underline; word-break: break-word; }
+.prose-haq hr { border: 0; border-top: 1px solid var(--line); margin: 1.25em 0; }
+.prose-haq table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+.prose-haq th, .prose-haq td { border: 1px solid var(--line); padding: 0.4em 0.6em; text-align: left; }
+.prose-haq blockquote { border-left: 3px solid var(--line); padding-left: 1em; color: var(--muted); }
+.prose-haq code { background: #eef0f2; padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.92em; }
+.draft-paper { overflow-wrap: anywhere; }
+
+@keyframes haq-pulse { 0%, 100% { opacity: 0.25; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1); } }
+.haq-dot { animation: haq-pulse 1.2s ease-in-out infinite; }
+@keyframes haq-pop { 0% { transform: scale(0.6); opacity: 0; } 60% { transform: scale(1.12); } 100% { transform: scale(1); opacity: 1; } }
+.haq-pop { animation: haq-pop 0.5s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .haq-dot, .haq-pop { animation: none; }
+}
+
+/* Print / Save as PDF: only the current draft (.print-area) is shown on paper. */
+@media print {
+  body { background: #fff; font-size: 12pt; }
+  body * { visibility: hidden; }
+  .print-area, .print-area * { visibility: visible; }
+  .print-area { position: absolute; left: 0; top: 0; width: 100%; }
+  .print-area .draft-paper { border: 0; padding: 0; }
+  .no-print { display: none !important; }
 }

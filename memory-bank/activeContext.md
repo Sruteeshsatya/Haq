@@ -1,7 +1,7 @@
 # Active context
 
 ## Current phase
-Phase 3 complete (API routes + live streaming). Next: Phase 4 (UI). The UI should consume the endpoints below.
+Phases 4 and 5 (UI + appeal flow + extras) complete. Next: Phase 6 (polish, README, demo).
 
 ## Key decisions
 - Next.js + TypeScript single repo; no database; cases are folders.
@@ -41,10 +41,19 @@ Phase 3 complete (API routes + live streaming). Next: Phase 4 (UI). The UI shoul
 - First-appeal mode is an explicit `runCase` option (`mode`), not parsed from facts.md. In that mode `finish_case` needs only `drafts/first_appeal.md`. The model calls `calc_deadlines` with `filingDate` = RTI filed date and `firstAppealDate` = appeal date.
 - `HAQ_CASES_DIR` env overrides the cases folder (used by tests).
 - Known, left as is: Turbopack warns at build ("dynamic filesystem access", `runCase.ts` prompt read) but it is harmless. No auth or rate limiting on the API.
-- Real minimax run with the new flow: created + finished in about 1 minute; appeal run about 1 minute; the model cited "Section 7(1)" from memory in the appeal (a prompt rule now limits it to Section 6(1) and 19(1); not re-run).
+- Real minimax run with the new flow: created + finished in about 1 minute; appeal run about 1 minute; the model cited "Section 7(1)" from memory in the appeal. A prompt rule alone did not stop it (it happened again in the Phase 4 UI run), so Phase 4 added the deterministic check `cites_only_known_sections` (see below).
 
+## Phase 4/5 notes (UI)
+- Next 16.4 + cacheComponents: `app/case/[id]/page.tsx` must read `params` inside `<Suspense>` (`params.then(...)`). `PageProps<"/case/[id]">` did not type-check here, so the prop is typed by hand. `useRouter`, `useSyncExternalStore` and event handlers are used instead of setState in effects (the React lint rule `react-hooks/set-state-in-effect` is on and fails lint).
+- Dev server: open it as `http://localhost:3000`, NOT `127.0.0.1`. Next blocks `/_next` dev resources for other origins, so React never hydrates and buttons do nothing. (To use another host add it to `allowedDevOrigins`.)
+- `lib/client/timeline.ts` `reduceEvents` turns SSE events into sections (new section at each `start`), marks a draft `fixed` when it failed before and now passes, hides `routing.json`/`checks.json`/`timeline.json` writes. `components/useCaseStream.ts` closes the EventSource on `event: end`, reconnects with `?after=<last id>` (browsers cannot set `Last-Event-ID`), and calls the page to refetch on `done`/`error`.
+- Citizen details (name, address, phone, date) live only in localStorage (`haq.details.v1`, `components/useDetails.ts`) and fill the `[Your name]`, `[Your address]`, `[Your phone]`, `[Date]` placeholders in the displayed text only. Copy / Download / Print use the filled text. Print CSS (`.print-area`, `.no-print` in `app/globals.css`) shows only the current draft.
+- `GET /api/cases/[id]` now also returns `route` (office, level, verified, verifyNote, note) and `sources` (URLs from routing.json + laws.json). Events route accepts `?after=N`.
+- `checkDraft` has a new last check `cites_only_known_sections` for all three kinds: any `Section N` other than 6(1) and 19(1) fails with a hint that names it. The agent then fixes the draft (seen in a real run).
+- After a run finishes, the step list is collapsed on small screens (button "Show steps") so drafts are not pushed down; it is always visible at `lg` and up.
+- Visual checks used `playwright-core` with the installed Edge (`.e2e/shot.mjs`, git-ignored). Mic and Read aloud code paths were not exercised with real speech in headless Edge; they fall back to a short hint when unsupported.
 ## Next steps
-- Phase 4: UI (intake page + case page with live panel, tabs, appeal button) using the endpoints above.
+- Phase 6: README, demo script, confirm `verified: false` offices, rotate the old API key, consider auth or rate limiting before any public deploy.
 
 ## Open questions
 - Confirm `verified: false` offices in data/authorities.json before the demo.
