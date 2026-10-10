@@ -2,13 +2,15 @@
   "name": "haq",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "ping": "node --env-file-if-exists=.env.local --experimental-strip-types scripts/ping-model.ts"
+    "ping": "tsx --env-file=.env.local scripts/ping-model.ts",
+    "run-case": "tsx --env-file=.env.local scripts/run-case.ts"
   },
   "dependencies": {
     "@cline/sdk": "^0.0.92",
@@ -27,6 +29,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.0",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5",
     "vitest": "^5.0.3"
   }
