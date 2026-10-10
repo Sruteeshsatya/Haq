@@ -3,6 +3,7 @@
 import { ApiError, createCase } from "../../../lib/server/caseService";
 import { newestFirst, readIndex } from "../../../lib/server/caseIndex";
 import { jsonError, jsonOk, serverError } from "../../../lib/server/http";
+import { isSafetyCase } from "../../../lib/tools/text";
 
 // A little more than the 5 MB photo limit, for the form fields and multipart framing.
 const MAX_BODY_BYTES = 6 * 1024 * 1024;
@@ -23,9 +24,14 @@ export async function POST(request: Request): Promise<Response> {
     } catch {
       return jsonError(400, "The form could not be read.");
     }
+    const text = form.get("text");
+    // Haq is for civic grievances. A safety or crime report is referred out unless the citizen confirms.
+    if (typeof text === "string" && isSafetyCase(text) && form.get("confirmCivic") !== "1") {
+      return jsonError(422, "safety_referral");
+    }
     const photo = form.get("photo");
     const caseId = await createCase({
-      text: form.get("text"),
+      text,
       language: form.get("language"),
       place: form.get("place"),
       photo: photo instanceof File ? photo : null,

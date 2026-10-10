@@ -115,6 +115,22 @@ describe("POST /api/cases", () => {
     expect(runningCases().has(caseId)).toBe(true);
   });
 
+  it("returns 422 safety_referral for a safety report and creates no case", async () => {
+    const unsafe = { ...fields, text: "Harassment of women at Brahmaputra Ghat, Guwahati." };
+    const response = await postCase(formRequest(unsafe));
+    expect(response.status).toBe(422);
+    expect(await response.json()).toEqual({ error: "safety_referral" });
+    expect(runState.calls).toEqual([]);
+    expect(fs.existsSync(path.join(root, "index.json"))).toBe(false);
+  });
+
+  it("creates the case for a safety-looking text when confirmCivic is 1", async () => {
+    const unsafe = { ...fields, text: "Theft of the streetlight cable on our lane in Guwahati.", confirmCivic: "1" };
+    const response = await postCase(formRequest(unsafe));
+    expect(response.status).toBe(201);
+    expect(runState.calls).toHaveLength(1);
+  });
+
   it("adds EXIF GPS and date to facts.md when the (mocked) parser finds them", async () => {
     exifState.result = { latitude: 26.14452, longitude: 91.73621, DateTimeOriginal: new Date("2026-07-01T10:20:30Z") };
     const { caseId } = (await (await postCase(formRequest(fields, { bytes: JPEG }))).json()) as { caseId: string };

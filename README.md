@@ -155,7 +155,6 @@ Every entry carries its sources. Official pages used include [rtionline.gov.in](
 
 - Only **Guwahati (GMC)**, **Assam** and **central** (CPGRAMS and central RTI) are in the data. A place outside Assam gets the central route plus a note that the state is not covered.
 - Place matching is by name. A district or locality outside the list falls back to the Assam or central route.
-- A problem that is not a civic service (for example the police or a crime) is not routed correctly: the agent gives the general route and says to confirm. We saw this with a harassment complaint that got a railways route; the draft carried a note to confirm.
 - Drafts are in English. Only the summary is in Hindi or Assamese.
 
 ## Setup
@@ -188,11 +187,11 @@ Other commands: `npm run ping` checks the key and model, `npm run run-case` runs
 npm test
 ```
 
-**192 tests in 11 files** (vitest), all deterministic, none calling a model:
+**198 tests in 12 files** (vitest), all deterministic, none calling a model:
 
 - tools: `findAuthority` (routing and place matching), `lookupLaw`, `calcDeadlines`, `checkDraft` (every check, including the citation check), `caseFiles` (path scoping, `..` and absolute paths rejected);
 - agent: the 7 tools and their guards, and `runCase` with a mock model (events, the error-shape unwrap, first-appeal mode, finish refusal);
-- server: SSE tailing and resume, facts and appeal helpers, and every API route (status codes, validation, photo sniffing, 404, 409);
+- server: SSE tailing and resume, facts and appeal helpers, and every API route (status codes, validation, photo sniffing, the 422 safety referral, 404, 409);
 - client: the event reducer for the live panel, placeholder filling, photo metadata and the route view.
 
 `npx tsc --noEmit`, `npm run lint` and `npm run build` are also clean.
@@ -206,6 +205,7 @@ npm test
 - Cases are plain folders on one machine, with no accounts and no deletion screen.
 - The model can still write weak or wrong text. The checks catch format, citations and missing parts, not whether a request is wise. Read every draft before filing.
 - Coverage is one city, one state and the central government (see above), and 8 of 13 offices are unverified.
+- Scope: civic grievances. Safety and crime reports are referred to 112 and the police; a police-complaint lane is future scope.
 
 **Future scope**
 

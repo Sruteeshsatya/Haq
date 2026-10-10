@@ -20,6 +20,36 @@ export function containsTerm(text: string, term: string): boolean {
   return haystack.includes(needle);
 }
 
+/** Words that suggest a police or safety matter. Haq handles civic grievances only. */
+export const SAFETY_TERMS = [
+  "harassment",
+  "eve teasing",
+  "stalking",
+  "molest",
+  "assault",
+  "attack",
+  "threat",
+  "violence",
+  "abuse",
+  "domestic violence",
+  "robbery",
+  "theft",
+  "stolen",
+  "kidnap",
+  "rape",
+  "murder",
+  "उत्पीड़न",
+  "छेड़छाड़",
+  "हिंसा",
+  "चोरी",
+  "पुलिस",
+];
+
+/** True when the text looks like a crime or safety report rather than a civic grievance. */
+export function isSafetyCase(text: string): boolean {
+  return SAFETY_TERMS.some((term) => containsTerm(text, term));
+}
+
 export function wordCount(text: string): number {
   return text.trim().split(/\s+/).filter(Boolean).length;
 }

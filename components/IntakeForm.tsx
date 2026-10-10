@@ -3,8 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { EXAMPLES, LANGUAGES, speechLang, type LanguageCode } from "../lib/client/facts";
+import { isSafetyCase } from "../lib/tools/text";
 import Mic from "./Mic";
 import PhotoPicker from "./PhotoPicker";
+import SafetyCard from "./SafetyCard";
 
 const MAX_CHARS = 2000;
 
@@ -16,30 +18,40 @@ export default function IntakeForm() {
   const [photo, setPhoto] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [safety, setSafety] = useState(false);
 
   function fillExample(example: (typeof EXAMPLES)[number]) {
     setText(example.text);
     setLanguage(example.language);
     setPlace(example.place);
     setError(null);
+    setSafety(false);
   }
 
-  async function submit(event: React.FormEvent) {
-    event.preventDefault();
+  async function send(confirmCivic: boolean) {
     if (busy) return;
     const trimmed = text.trim();
     if (!trimmed) return setError("Please describe the problem first.");
     if (trimmed.length > MAX_CHARS) return setError(`Please shorten your description to ${MAX_CHARS} characters.`);
+    // Safety and crime reports are not civic grievances: show the 112 card and create nothing.
+    if (!confirmCivic && isSafetyCase(trimmed)) return setSafety(true);
+    setSafety(false);
     setBusy(true);
     setError(null);
     try {
       const form = new FormData();
       form.set("text", trimmed);
       form.set("language", language);
+      if (confirmCivic) form.set("confirmCivic", "1");
       if (place.trim()) form.set("place", place.trim());
       if (photo) form.set("photo", photo);
       const response = await fetch("/api/cases", { method: "POST", body: form });
       const body = (await response.json().catch(() => ({}))) as { caseId?: string; error?: string };
+      if (response.status === 422 && body.error === "safety_referral") {
+        setSafety(true);
+        setBusy(false);
+        return;
+      }
       if (!response.ok || !body.caseId) {
         setError(body.error ?? "Something went wrong. Please try again.");
         setBusy(false);
@@ -53,7 +65,7 @@ export default function IntakeForm() {
   }
 
   return (
-    <form onSubmit={submit} className="flex flex-col gap-6" noValidate>
+    <form onSubmit={(event) => { event.preventDefault(); void send(false); }} className="flex flex-col gap-6" noValidate>
       <div>
         <p className="mb-2 text-sm font-semibold text-muted">Try an example</p>
         <div className="flex flex-wrap gap-2">
@@ -97,7 +109,10 @@ export default function IntakeForm() {
         <textarea
           id="problem"
           value={text}
-          onChange={(event) => setText(event.target.value)}
+          onChange={(event) => {
+            setText(event.target.value);
+            setSafety(false);
+          }}
           rows={6}
           placeholder="Describe it in your own words: where it is, since when, who is affected."
           className="w-full rounded-xl border border-line bg-surface px-4 py-3 text-lg leading-relaxed"
@@ -129,6 +144,8 @@ export default function IntakeForm() {
       </div>
 
       <PhotoPicker onChange={setPhoto} />
+
+      {safety && <SafetyCard busy={busy} onContinue={() => void send(true)} />}
 
       {error && (
         <p role="alert" className="rounded-xl border border-bad bg-white px-4 py-3 text-base text-bad">
