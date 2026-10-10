@@ -1,0 +1,58 @@
+{
+  "_note": "Nested routing data: city -> state -> central. 'verified: true' = checked against an official source on 2026-10-10. 'verified: false' = plausible routing that the team must confirm before the demo; the agent must show a 'verify this office' warning for these. Pick the MOST LOCAL level that owns the issue.",
+  "levels": {
+    "city": {
+      "guwahati": {
+        "name": "Guwahati Municipal Corporation (GMC)",
+        "state": "Assam",
+        "match_places": ["guwahati", "গুৱাহাটী", "गुवाहाटी", "dispur", "panbazar", "beltola", "chandmari", "zoo road", "ganeshguri", "maligaon", "paltan bazaar"],
+        "issues": {
+          "road_pothole": { "office": "GMC Public Grievance Officer (roads)", "grievance": "gmc_grievance", "rti": "rti_assam", "rti_pio": "Public Information Officer, Guwahati Municipal Corporation, Panbazar, Guwahati - 781001", "verified": true },
+          "streetlight": { "office": "GMC Public Grievance Officer", "grievance": "gmc_grievance", "rti": "rti_assam", "rti_pio": "Public Information Officer, Guwahati Municipal Corporation, Panbazar, Guwahati - 781001", "verified": false, "verify_note": "Confirm streetlight maintenance is with GMC for the ward." },
+          "garbage": { "office": "GMC (solid waste management); also Swachhata app", "grievance": "gmc_grievance", "rti": "rti_assam", "rti_pio": "Public Information Officer, Guwahati Municipal Corporation, Panbazar, Guwahati - 781001", "verified": true },
+          "drainage": { "office": "GMC Public Grievance Officer", "grievance": "gmc_grievance", "rti": "rti_assam", "rti_pio": "Public Information Officer, Guwahati Municipal Corporation, Panbazar, Guwahati - 781001", "verified": false, "verify_note": "Large drains may be with another state agency; confirm." },
+          "water_supply": { "office": "GMC Superintendent Engineer (water supply)", "grievance": "gmc_grievance", "rti": "rti_assam", "rti_pio": "Public Information Officer, Guwahati Municipal Corporation, Panbazar, Guwahati - 781001", "verified": true }
+        },
+        "sources": ["https://gmc.assam.gov.in/resource/grievance-redressal", "https://gmc.assam.gov.in/portlets/dissatisfied-let-us-know"]
+      }
+    },
+    "state": {
+      "assam": {
+        "name": "Government of Assam",
+        "default_grievance": "assam_cm_grievance",
+        "default_rti": "rti_assam",
+        "issues": {
+          "electricity": { "office": "Assam Power Distribution Company Ltd (APDCL), local sub-division", "grievance": "assam_cm_grievance", "rti": "rti_assam", "rti_pio": "Public Information Officer, APDCL (sub-division office for your area)", "verified": false, "verify_note": "Confirm APDCL's own complaint channel and PIO address." },
+          "ration_card": { "office": "Food, Public Distribution & Consumer Affairs Department, Assam (district office)", "grievance": "assam_cm_grievance", "rti": "rti_assam", "rti_pio": "Public Information Officer, district Food & Civil Supplies office", "verified": false, "verify_note": "Confirm department name and district PIO." },
+          "road_pothole": { "office": "Public Works (Roads) Department, Assam - division office (roads outside municipal areas)", "grievance": "assam_cm_grievance", "rti": "rti_assam", "rti_pio": "Public Information Officer, PWD (Roads) division office for your area", "verified": false, "verify_note": "Confirm whether the road is PWD, municipal or panchayat." },
+          "other_state_service": { "office": "The Assam Government department that provides the service", "grievance": "assam_cm_grievance", "rti": "rti_assam", "rti_pio": "Public Information Officer of that department", "verified": true }
+        },
+        "sources": ["https://rtionline.assam.gov.in/guidelines.php", "https://cm.assam.gov.in"]
+      }
+    },
+    "central": {
+      "name": "Government of India",
+      "default_grievance": "cpgrams",
+      "default_rti": "rti_central",
+      "issues": {
+        "post_office": { "office": "Department of Posts (via CPGRAMS)", "grievance": "cpgrams", "rti": "rti_central", "rti_pio": "CPIO, Department of Posts (choose on rtionline.gov.in)", "verified": false, "verify_note": "Department of Posts also has its own complaint system; CPGRAMS is accepted." },
+        "railways": { "office": "Ministry of Railways (via CPGRAMS)", "grievance": "cpgrams", "rti": "rti_central", "rti_pio": "CPIO, the relevant Railway zone (choose on rtionline.gov.in)", "verified": false, "verify_note": "Railways also runs its own complaint channel; confirm before demo." },
+        "passport": { "office": "Ministry of External Affairs - Passport Seva (via CPGRAMS)", "grievance": "cpgrams", "rti": "rti_central", "rti_pio": "CPIO, Regional Passport Office (choose on rtionline.gov.in)", "verified": false },
+        "other_central_service": { "office": "The central ministry or department that provides the service (via CPGRAMS)", "grievance": "cpgrams", "rti": "rti_central", "rti_pio": "CPIO of that ministry/department (choose on rtionline.gov.in)", "verified": true }
+      },
+      "sources": ["https://pgportal.gov.in/Home/Faq", "https://rtionline.gov.in"]
+    }
+  },
+  "issue_keywords": {
+    "road_pothole": ["pothole", "road", "gaddha", "गड्ढा", "सड़क", "ৰাস্তা", "গাঁত"],
+    "streetlight": ["streetlight", "street light", "light pole", "बत्ती", "লাইট"],
+    "garbage": ["garbage", "waste", "kachra", "कचरा", "আৱৰ্জনা", "জাবৰ"],
+    "drainage": ["drain", "nala", "nallah", "waterlogging", "नाली", "নলা"],
+    "water_supply": ["water supply", "tap", "pani", "पानी", "পানী"],
+    "electricity": ["electricity", "power cut", "bijli", "meter", "बिजली", "বিদ্যুৎ"],
+    "ration_card": ["ration", "pds", "राशन", "ৰেচন"],
+    "post_office": ["post office", "speed post", "parcel", "डाक"],
+    "railways": ["train", "railway", "rail", "ट्रेन", "ৰেল"],
+    "passport": ["passport", "पासपोर्ट"]
+  }
+}

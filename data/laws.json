@@ -1,0 +1,89 @@
+{
+  "_note": "Verified rules only. Every entry has a source. If something is not here, the agent must say 'not covered - verify' instead of guessing. Last checked: 2026-10-10.",
+  "rti_act_2005": {
+    "name": "Right to Information Act, 2005",
+    "applies_to": ["central", "state"],
+    "rules": {
+      "who_to_address": "Public Information Officer (PIO) of the public authority that holds the information. Central: CPIO. State: SPIO.",
+      "reply_deadline_days": 30,
+      "reply_deadline_life_or_liberty_hours": 48,
+      "first_appeal": "To the First Appellate Authority (an officer senior to the PIO in the same public authority), within 30 days of receiving the reply or of the reply deadline expiring.",
+      "first_appeal_window_days": 30,
+      "first_appeal_decision_days": 30,
+      "first_appeal_decision_max_days": 45,
+      "second_appeal": "To the Information Commission (Central Information Commission for central authorities; State Information Commission for state authorities), within 90 days of the first appeal decision or of the date it was due.",
+      "second_appeal_window_days": 90,
+      "good_practice": [
+        "Ask for specific records (copies of work orders, inspection reports, budget sanctioned and spent, file notings with dates), not opinions or explanations.",
+        "Avoid 'why' questions; PIOs can reject them as not 'information'.",
+        "Number each question.",
+        "One public authority per application.",
+        "Give a time period for the records requested."
+      ]
+    },
+    "sources": ["https://rti.gov.in/rti-act.pdf"]
+  },
+  "rti_central": {
+    "name": "RTI to Central public authorities (RTI Rules, 2012)",
+    "level": "central",
+    "portal": "https://rtionline.gov.in",
+    "fee_inr": 10,
+    "bpl_exempt": true,
+    "word_limit": 500,
+    "first_appeal_fee_inr": 0,
+    "sources": ["https://rtionline.gov.in", "https://righttoinformation.wiki/rti-fees-by-state"]
+  },
+  "rti_assam": {
+    "name": "RTI to Assam State public authorities (Assam RTI Rules)",
+    "level": "state",
+    "state": "Assam",
+    "portal": "https://rtionline.assam.gov.in",
+    "fee_inr": 10,
+    "bpl_exempt": true,
+    "first_appeal_fee_inr": 0,
+    "first_appeal_online": true,
+    "offline_payment": "Indian Postal Order, demand draft/banker's cheque, or cash against receipt at the office",
+    "word_limit_note": "No state word limit verified; keep under 500 words as good practice.",
+    "information_commission": "Assam State Information Commission",
+    "sources": ["https://rtionline.assam.gov.in/guidelines.php"]
+  },
+  "cpgrams": {
+    "name": "CPGRAMS (Centralised Public Grievance Redress and Monitoring System)",
+    "level": "central",
+    "portal": "https://pgportal.gov.in",
+    "fee_inr": 0,
+    "redressal_days": 21,
+    "interim_reply_if_delayed": true,
+    "appeal": "If the grievance is closed and you rate the disposal 'Poor', an appeal option opens; file it within 30 days.",
+    "appeal_window_days": 30,
+    "appeal_decision_days": 30,
+    "notes": "Also accepts grievances for State Governments, which are forwarded to state nodal officers. Choose the correct ministry and subordinate office.",
+    "sources": ["https://pgportal.gov.in/Home/Faq", "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2088830"]
+  },
+  "assam_cm_grievance": {
+    "name": "Write to the Chief Minister of Assam (grievance)",
+    "level": "state",
+    "state": "Assam",
+    "portal": "https://cm.assam.gov.in",
+    "fee_inr": 0,
+    "notes": "For any Assam Government service, scheme or office. Deadline not verified; do not state one.",
+    "sources": ["https://services.india.gov.in/service/detail/grievances-for-guwahati-municipal-corporation-assam"]
+  },
+  "gmc_grievance": {
+    "name": "Guwahati Municipal Corporation grievance redressal",
+    "level": "city",
+    "city": "Guwahati",
+    "how": "Written complaint on plain paper addressed to the Commissioner or the Public Grievance Officer, GMC, sent by post or email. Helpline/WhatsApp also available.",
+    "address": "Public Grievance Officer, Guwahati Municipal Corporation, Panbazar, Guwahati - 781001",
+    "helpline": "8811007000 (call or WhatsApp) - verify before demo",
+    "acknowledgement_days": 5,
+    "redressal_days": 21,
+    "fee_inr": 0,
+    "sources": ["https://gmc.assam.gov.in/resource/grievance-redressal", "https://gmc.assam.gov.in/portlets/dissatisfied-let-us-know"]
+  },
+  "legal_aid": {
+    "name": "Free legal aid",
+    "text": "For complex or disputed cases, contact your District Legal Services Authority (DLSA) for free legal aid.",
+    "sources": ["https://nalsa.gov.in"]
+  }
+}
